@@ -4,49 +4,28 @@ using UnityEngine;
 
 public class DetectInside : MonoBehaviour
 {
-    public RectTransform container;
+	public RectTransform container;
 	public GUISkin skin;
-    RectTransform rectTransform;
-    Rect containingRect;
-    bool inside = false;
+	RectTransform rectTransform;
+	Rect rect;
+	string inside;
 
-    void Start()
-    {
-        rectTransform = GetComponent<RectTransform>();
-    }
+	void Start()
+	{
+		rectTransform = GetComponent<RectTransform>();
+	}
 
-    void Update()
-    {
-		Rect rect = rectTransform.rect;
-        rect.center = rectTransform.position;
-        containingRect = container.rect;
-        RectOffset offset = new RectOffset(
-            (int)(rect.size.x * 0.5f),
-            (int)(rect.size.x * 0.5f),
-            (int)(rect.size.y * 0.5f),
-            (int)(rect.size.y * 0.5f));
-        containingRect = offset.Remove(containingRect);
-        containingRect.center = container.position;
-        inside = containingRect.Contains(rect.center, false);
-    }
+	void Update()
+	{
+		rect = RectUtility.ShrinkRect(container.rect, rectTransform.rect);
+		rect.center = container.position;
+		inside = rect.Contains(rectTransform.position, false)?
+			"Inside" : "Outside";
+	}
 
-    void DrawRectTransform(RectTransform rectTransform, string text)
-    {
-        GUI.skin = skin;
-		Rect rect = rectTransform.rect;
-		rect.center = rectTransform.position;
-		DrawRect(rect, text);
-    }
-
-    void DrawRect(Rect rect, string text)
-    {
-        GUI.skin = skin;
-		DebugDraw.Box(rect, text);
-    }
-
-    void OnGUI()
-    {
-        DrawRectTransform(rectTransform, $"{inside}");
-        DrawRect(containingRect, $"{containingRect}");
-    }
+	void OnGUI()
+	{
+		DebugDraw.DrawRectTransform(rectTransform, $"{inside}", skin);
+		DebugDraw.DrawRect(rect, "Container", skin);
+	}
 }
